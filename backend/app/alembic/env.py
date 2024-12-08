@@ -30,7 +30,8 @@ target_metadata = SQLModel.metadata
 
 
 def get_url():
-    return str(settings.SQLALCHEMY_DATABASE_URI)
+    """Get database URL from settings with the same configuration as our tests"""
+    return str(settings.SUPABASE_DATABASE_URL)
 
 
 def run_migrations_offline():
@@ -55,14 +56,11 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
+    """Run migrations in 'online' mode."""
+    
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = get_url()
+    
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -71,7 +69,9 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, compare_type=True
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True
         )
 
         with context.begin_transaction():

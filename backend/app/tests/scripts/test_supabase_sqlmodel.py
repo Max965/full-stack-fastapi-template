@@ -20,7 +20,7 @@ def test_supabase_sqlmodel_connection() -> bool:
     try:
         # Create engine with validated URL
         engine = create_engine(str(get_database_url()), pool_pre_ping=True)
-        
+
         # Test connection with a simple query
         with Session(engine) as session:
             result: Optional[int] = session.exec(select(1)).first()
@@ -42,4 +42,4 @@ def test_supabase_sqlmodel_connection() -> bool:
         raise
 
 if __name__ == "__main__":
-    test_supabase_sqlmodel_connection() 
+    test_supabase_sqlmodel_connection()

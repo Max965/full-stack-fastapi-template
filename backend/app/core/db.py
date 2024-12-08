@@ -4,7 +4,16 @@ from app import crud
 from app.core.config import settings
 from app.models import User, UserCreate
 
-engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
+engine = create_engine(
+    str(settings.SQLALCHEMY_DATABASE_URI),
+    pool_pre_ping=True,
+    connect_args={
+        "sslmode": "require",
+        "application_name": "fastapi",
+        "client_encoding": "utf8",
+        "options": "-c timezone=utc"
+    }
+)
 
 # make sure all SQLModel models are imported (app.models) before initializing DB
 # otherwise, SQLModel might fail to initialize relationships properly

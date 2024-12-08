@@ -133,7 +133,7 @@ class Settings(BaseSettings):
     @property
     def SUPABASE_DATABASE_URL(self) -> PostgresDsn:
         return MultiHostUrl.build(
-            scheme="postgresql+psycopg",
+            scheme="postgresql+psycopg2",
             username=self.SUPABASE_DB_USER,
             password=self.SUPABASE_DB_PASSWORD,
             host=self.SUPABASE_DB_HOST,
