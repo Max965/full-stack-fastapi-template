@@ -9,10 +9,12 @@ from pydantic import (
     PostgresDsn,
     computed_field,
     model_validator,
+    Field,
 )
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing_extensions import Self
+from supabase import create_client
 
 
 def parse_cors(v: Any) -> list[str] | str:
@@ -96,6 +98,52 @@ class Settings(BaseSettings):
     # TODO: update type to EmailStr when sqlmodel supports it
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
+
+    SUPABASE_URL: str = Field(
+        default="your-project-url",
+        description="Supabase project URL"
+    )
+    SUPABASE_KEY: str = Field(
+        default="your-anon-key",
+        description="Supabase anonymous key"
+    )
+
+    SUPABASE_DB_USER: str = Field(
+        default="postgres.zdganwtrmsrwfpjhfeur",
+        description="Supabase database user"
+    )
+    SUPABASE_DB_PASSWORD: str = Field(
+        ...,  # Required, no default
+        description="Supabase database password"
+    )
+    SUPABASE_DB_HOST: str = Field(
+        default="aws-0-eu-west-2.pooler.supabase.com",
+        description="Supabase database host"
+    )
+    SUPABASE_DB_PORT: int = Field(
+        default=6543,
+        description="Supabase database port"
+    )
+    SUPABASE_DB_NAME: str = Field(
+        default="postgres",
+        description="Supabase database name"
+    )
+
+    @computed_field
+    @property
+    def SUPABASE_DATABASE_URL(self) -> PostgresDsn:
+        return MultiHostUrl.build(
+            scheme="postgresql+psycopg",
+            username=self.SUPABASE_DB_USER,
+            password=self.SUPABASE_DB_PASSWORD,
+            host=self.SUPABASE_DB_HOST,
+            port=self.SUPABASE_DB_PORT,
+            path=self.SUPABASE_DB_NAME,
+        )
+
+    @property
+    def supabase_client(self):
+        return create_client(self.SUPABASE_URL, self.SUPABASE_KEY)
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
