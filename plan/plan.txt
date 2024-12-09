@@ -1,0 +1,30 @@
+Prompt
+Goal:
+Build a modular, event-driven framework using Rasa for intent detection, FastAPI for backend orchestration, and nodes for event processing.
+
+it uses uv and backend/pyproject.toml for dependencies, add any new libaries to this list
+
+Nodes should be rule-based, reusable, and swappable.
+Support integration of external systems (e.g., RabbitMQ, APIs, databases).
+Core Concepts:
+
+Node Framework: Use a common interface for all node types, ensuring consistent input/output and behavior-driven design.
+Dynamic Graph: Nodes are orchestrated dynamically within a graph, where events trigger interactions.
+Self-Learning Rules: Rasa triggers placeholders for missing functionality, which developers can later implement.
+Task Queue Integration: Use task queues (e.g., Celery with RabbitMQ) for long-running processes.
+Integration Needs:
+
+Rasa: Detect event types and entities from user input.
+Telegram: Serve as the user interface for interactions.
+RabbitMQ: Act as a message broker node for pub/sub workflows.
+Database: Provide a swappable interface for storing events, nodes, and logs.
+Design Enhancements:
+
+Use Enums for event types, node types, and other constants to ensure consistency, avoid hardcoded strings, and enhance IntelliSense support.
+Use Pydantic dataclasses for structured data validation and clear type hints for inputs/outputs.
+For pandas DataFrames, enforce schema consistency with enums or schema validation for column names.
+Design Priorities:
+
+Keep the system non-bespoke: Use modular interfaces to allow swappable components (e.g., RabbitMQ for Kafka, SQLAlchemy for Tortoise).
+Ensure reusability: Nodes and graphs should follow a consistent structure, independent of specific libraries.
+Facilitate developer workflows: Provide placeholders, task management, and dashboards for node implementation and debugging.

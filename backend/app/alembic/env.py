@@ -20,6 +20,9 @@ fileConfig(config.config_file_name)
 
 from app.models import SQLModel  # noqa
 from app.core.config import settings # noqa
+from app.models.user import User
+from app.models.item import Item
+from app.models.task import Task  # noqa
 
 target_metadata = SQLModel.metadata
 
