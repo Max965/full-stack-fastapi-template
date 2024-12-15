@@ -1,8 +1,36 @@
 __pycache__
-app.egg-info
 *.pyc
 .mypy_cache
+.pytest_cache
+.ruff_cache
+
+# Coverage
 .coverage
 htmlcov
 .cache
-.venv
+
+# Environment folders
+.venv/
+venv/
+env/
+ENV/
+*env/
+fastapi_env/
+
+# Package files
+*.egg-info
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# Database
+*.db
+*.sqlite

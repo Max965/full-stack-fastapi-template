@@ -237,3 +237,27 @@ Check the file [release-notes.md](./release-notes.md).
 ## License
 
 The Full Stack FastAPI Template is licensed under the terms of the MIT license.
+
+### Installing Dependencies
+
+To install the required dependencies for the project, you can use the provided script:
+
+1. Navigate to the `scripts` directory:
+
+   ```bash
+   cd backend/scripts
+   ```
+
+2. Run the installation script:
+
+   For Windows:
+   ```bash
+   install_dependencies.bat
+   ```
+
+   For Unix-based systems (if you create a shell script in the future):
+   ```bash
+   ./install_dependencies.sh
+   ```
+
+This will install all necessary libraries as specified in `pyproject.toml`.
