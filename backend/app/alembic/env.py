@@ -70,21 +70,11 @@ def seed_data():
 
 def run_migrations_online():
     """Run migrations in 'online' mode."""
-    from app.core.db import engine
-    from app.core.config import settings
+    from app.core.db import db
     
-    # Configure SSL and other Supabase-specific settings
-    connect_args = {
-        "sslmode": "require",
-        "application_name": "alembic",
-        "client_encoding": "utf8",
-        "options": "-c timezone=utc"
-    }
-
-    # Create a new engine with Supabase-specific settings
     configuration = {
-        "sqlalchemy.url": str(settings.SUPABASE_DATABASE_URL),
-        "sqlalchemy.connect_args": connect_args
+        "sqlalchemy.url": str(db.get_connection_url()),
+        "sqlalchemy.connect_args": db.get_connection_args()
     }
 
     connectable = engine_from_config(
@@ -100,18 +90,13 @@ def run_migrations_online():
             compare_type=True
         )
 
-        # Create a session using the same connection
-        session = Session(bind=connection)
-        
-        try:
-            with context.begin_transaction():
-                context.run_migrations()
-                # Seed data within the same transaction
-                from app.seeds.seeder import Seeder
-                seeder = Seeder(session)
-                seeder.seed_all()
-        finally:
-            session.close()
+        with context.begin_transaction():
+            context.run_migrations()
+            
+        with Session(db.get_engine()) as session:
+            from app.seeds.seeder import Seeder
+            seeder = Seeder(session)
+            seeder.seed_all()
 
 
 if context.is_offline_mode():
