@@ -17,3 +17,11 @@ items:
   - title: "Second Item"
     description: "Description for second item"
     owner_email: "user@example.com"
+
+roles:
+  - name: "admin"
+    description: "Test data: Administrator role"
+  - name: "user"
+    description: "Test data: Regular user role"
+  - name: "guest"
+    description: "Test data: Guest user role"

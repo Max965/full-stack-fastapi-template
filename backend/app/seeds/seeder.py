@@ -4,6 +4,7 @@ from sqlmodel import Session
 from app.core.security import get_password_hash
 from app.models.user import User, UserCreate
 from app.models.item import Item
+from app.models.role import Role
 
 class Seeder:
     def __init__(self, session: Session):
@@ -23,6 +24,9 @@ class Seeder:
 
     def _get_user_by_email(self, email: str) -> User | None:
         return self.session.query(User).filter(User.email == email).first()
+
+    def _get_role_by_name(self, name: str) -> Role | None:
+        return self.session.query(Role).filter(Role.name == name).first()
 
     def seed_users(self) -> None:
         for user_data in self.seed_data.get("users", []):
@@ -46,6 +50,14 @@ class Seeder:
                 self.session.add(item)
         self.session.commit()
 
+    def seed_roles(self) -> None:
+        for role_data in self.seed_data.get("roles", []):
+            if not self._get_role_by_name(role_data["name"]):
+                role = Role(**role_data)
+                self.session.add(role)
+        self.session.commit()
+
     def seed_all(self) -> None:
         self.seed_users()
         self.seed_items()
+        self.seed_roles()

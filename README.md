@@ -261,3 +261,19 @@ To install the required dependencies for the project, you can use the provided s
    ```
 
 This will install all necessary libraries as specified in `pyproject.toml`.
+
+## Adding New Models
+
+When adding new models to the application:
+
+1. Create the model class in your models directory
+2. Create an empty migration:
+   ```bash
+   alembic revision -m "describe_your_changes"
+   ```
+3. Manually define the upgrade() and downgrade() operations in the generated migration script
+4. Apply the migration:
+   ```bash
+   alembic upgrade head
+   ```
+5. Run the seeder if needed
