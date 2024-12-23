@@ -1,0 +1,19 @@
+users:
+  - email: "admin@example.com"
+    password: "admin123456"
+    full_name: "Admin User"
+    is_active: true
+    is_superuser: true
+  - email: "user@example.com"
+    password: "user123456"
+    full_name: "Test User"
+    is_active: true
+    is_superuser: false
+
+items:
+  - title: "First Item"
+    description: "Description for first item"
+    owner_email: "admin@example.com"
+  - title: "Second Item"
+    description: "Description for second item"
+    owner_email: "user@example.com"

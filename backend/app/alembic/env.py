@@ -3,6 +3,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from sqlmodel import SQLModel, Session
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,7 +19,6 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from sqlmodel import SQLModel  # Correct import
 from app.core.config import settings # noqa
 from app.models.user import User
 from app.models.item import Item
@@ -58,12 +58,35 @@ def run_migrations_offline():
         context.run_migrations()
 
 
+def seed_data():
+    from app.seeds.seeder import Seeder
+    from sqlmodel import Session
+    from app.core.db import engine
+
+    with Session(engine) as session:
+        seeder = Seeder(session)
+        seeder.seed_all()
+
+
 def run_migrations_online():
     """Run migrations in 'online' mode."""
+    from app.core.db import engine
+    from app.core.config import settings
     
-    configuration = config.get_section(config.config_ini_section)
-    configuration["sqlalchemy.url"] = get_url()
-    
+    # Configure SSL and other Supabase-specific settings
+    connect_args = {
+        "sslmode": "require",
+        "application_name": "alembic",
+        "client_encoding": "utf8",
+        "options": "-c timezone=utc"
+    }
+
+    # Create a new engine with Supabase-specific settings
+    configuration = {
+        "sqlalchemy.url": str(settings.SUPABASE_DATABASE_URL),
+        "sqlalchemy.connect_args": connect_args
+    }
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -77,8 +100,18 @@ def run_migrations_online():
             compare_type=True
         )
 
-        with context.begin_transaction():
-            context.run_migrations()
+        # Create a session using the same connection
+        session = Session(bind=connection)
+        
+        try:
+            with context.begin_transaction():
+                context.run_migrations()
+                # Seed data within the same transaction
+                from app.seeds.seeder import Seeder
+                seeder = Seeder(session)
+                seeder.seed_all()
+        finally:
+            session.close()
 
 
 if context.is_offline_mode():
