@@ -1,63 +1,82 @@
+from sqlmodel import Session, select
+from typing import Any, Dict, List, Type
 import yaml
-from pathlib import Path
-from sqlmodel import Session
-from app.core.security import get_password_hash
-from app.models.user import User, UserCreate
-from app.models.item import Item
+from app.models.user import User
 from app.models.role import Role
+from app.models.organisation import Organisation, Department, Employee
 
 class Seeder:
     def __init__(self, session: Session):
         self.session = session
-        self.seed_data = self._load_seed_data()
+        self.model_map = {
+            'roles': Role,
+            'organisations': Organisation,
+            'departments': Department,
+            'users': User,
+            'employees': Employee
+        }
+        self.seeded_ids = {}  # Store IDs of seeded records for references
 
-    def _load_seed_data(self) -> dict:
-        # Get the absolute path to the seed_data.yaml file
-        current_dir = Path(__file__).parent
-        seed_file = current_dir / "seed_data.yaml"
-        
-        if not seed_file.exists():
-            raise FileNotFoundError(f"Seed file not found at {seed_file}")
-            
-        with open(seed_file, "r") as file:
+    def _load_yaml(self) -> Dict[str, List[Dict[str, Any]]]:
+        with open('app/seeds/seed.yaml', 'r') as file:
             return yaml.safe_load(file)
 
-    def _get_user_by_email(self, email: str) -> User | None:
-        return self.session.query(User).filter(User.email == email).first()
+    def _exists(self, model: Type, unique_fields: Dict[str, Any]) -> bool:
+        query = select(model)
+        for field, value in unique_fields.items():
+            query = query.where(getattr(model, field) == value)
+        return self.session.exec(query).first() is not None
 
-    def _get_role_by_name(self, name: str) -> Role | None:
-        return self.session.query(Role).filter(Role.name == name).first()
+    def _resolve_reference(self, value: str) -> Any:
+        """Resolve references like ${model[index].id} in the seed file"""
+        if not isinstance(value, str) or not value.startswith('${'):
+            return value
+        
+        path = value[2:-1].split('.')  # Remove ${} and split by .
+        collection = path[0].split('[')
+        model_name = collection[0]
+        index = int(collection[1][:-1])
+        field = path[-1]
+        
+        return self.seeded_ids[model_name][index][field]
 
-    def seed_users(self) -> None:
-        for user_data in self.seed_data.get("users", []):
-            if not self._get_user_by_email(user_data["email"]):
-                user = UserCreate(**user_data)
-                db_user = User(
-                    email=user.email,
-                    hashed_password=get_password_hash(user.password),
-                    full_name=user.full_name,
-                    is_active=user_data.get("is_active", True),
-                    is_superuser=user_data.get("is_superuser", False)
-                )
-                self.session.add(db_user)
-        self.session.commit()
-
-    def seed_items(self) -> None:
-        for item_data in self.seed_data.get("items", []):
-            owner = self._get_user_by_email(item_data.pop("owner_email"))
-            if owner:
-                item = Item(**item_data, owner_id=owner.id)
-                self.session.add(item)
-        self.session.commit()
-
-    def seed_roles(self) -> None:
-        for role_data in self.seed_data.get("roles", []):
-            if not self._get_role_by_name(role_data["name"]):
-                role = Role(**role_data)
-                self.session.add(role)
-        self.session.commit()
+    def _process_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Process data to resolve references"""
+        processed = {}
+        for key, value in data.items():
+            processed[key] = self._resolve_reference(value)
+        return processed
 
     def seed_all(self) -> None:
-        self.seed_users()
-        self.seed_items()
-        self.seed_roles()
+        data = self._load_yaml()
+        
+        # Seed in order of dependencies
+        seeding_order = ['roles', 'organisations', 'departments', 'users', 'employees']
+        
+        for model_name in seeding_order:
+            if model_name in data:
+                self.seeded_ids[model_name] = []
+                for item_data in data[model_name]:
+                    processed_data = self._process_data(item_data)
+                    model_class = self.model_map[model_name]
+                    
+                    # Check unique constraints based on model
+                    unique_fields = {
+                        'roles': {'name'},
+                        'organisations': {'domain'},
+                        'users': {'email'},
+                        'employees': {'user_id', 'organisation_id'},
+                        'departments': {'name', 'organisation_id'}
+                    }[model_name]
+                    
+                    unique_data = {f: processed_data[f] for f in unique_fields}
+                    if not self._exists(model_class, unique_data):
+                        instance = model_class(**processed_data)
+                        self.session.add(instance)
+                        self.session.flush()  # Get ID before commit
+                        self.seeded_ids[model_name].append({
+                            'id': instance.id,
+                            **processed_data
+                        })
+                
+                self.session.commit()

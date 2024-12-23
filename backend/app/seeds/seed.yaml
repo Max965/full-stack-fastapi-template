@@ -1,0 +1,79 @@
+roles:
+  - name: admin
+    description: System administrator
+  - name: manager
+    description: Business manager
+  - name: worker
+    description: Regular worker
+
+organisations:
+  - name: Business One Ltd
+    domain: businessone.com
+  - name: Tech Solutions Inc
+    domain: techsolutions.com
+
+departments:
+  - name: Sales
+    organisation_id: ${organisations[0].id}  # Business One
+  - name: Engineering
+    organisation_id: ${organisations[0].id}
+  - name: Marketing
+    organisation_id: ${organisations[1].id}  # Tech Solutions
+  - name: Development
+    organisation_id: ${organisations[1].id}
+
+users:
+  - email: admin@example.com
+    hashed_password: $2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW
+    is_active: true
+    is_superuser: true
+    role_id: ${roles[0].id}  # admin
+  
+  # Business One Users
+  - email: manager1@businessone.com
+    hashed_password: $2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW
+    is_active: true
+    role_id: ${roles[1].id}  # manager
+  - email: worker1@businessone.com
+    hashed_password: $2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW
+    is_active: true
+    role_id: ${roles[2].id}  # worker
+  
+  # Tech Solutions Users
+  - email: manager2@techsolutions.com
+    hashed_password: $2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW
+    is_active: true
+    role_id: ${roles[1].id}  # manager
+  - email: worker2@techsolutions.com
+    hashed_password: $2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW
+    is_active: true
+    role_id: ${roles[2].id}  # worker
+
+employees:
+  # Business One Employees
+  - user_id: ${users[1].id}  # manager1
+    organisation_id: ${organisations[0].id}
+    department_id: ${departments[0].id}  # Sales
+    position: Department Manager
+    level: 2
+    reports_to_id: null
+  - user_id: ${users[2].id}  # worker1
+    organisation_id: ${organisations[0].id}
+    department_id: ${departments[0].id}  # Sales
+    position: Sales Representative
+    level: 3
+    reports_to_id: ${employees[0].id}  # reports to manager1
+  
+  # Tech Solutions Employees
+  - user_id: ${users[3].id}  # manager2
+    organisation_id: ${organisations[1].id}
+    department_id: ${departments[2].id}  # Marketing
+    position: Department Manager
+    level: 2
+    reports_to_id: null
+  - user_id: ${users[4].id}  # worker2
+    organisation_id: ${organisations[1].id}
+    department_id: ${departments[2].id}  # Marketing
+    position: Marketing Specialist
+    level: 3
+    reports_to_id: ${employees[2].id}  # reports to manager2
