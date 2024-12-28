@@ -1,0 +1,16 @@
+# Custom instructions for AI in the Cursor IDE
+
+instructions:
+  - "Dont bandaid the problems, so find the root cause and fix it"
+  - "Ensure all Python code uses strict typing with Pydantic and SQLModel."
+  - "Follow the DRY (Don't Repeat Yourself) principle to avoid code duplication."
+  - "Use dependency injection for managing dependencies in the FastAPI backend."
+  - "Implement unit tests for each module to ensure code reliability and maintainability."
+  - "Utilize pandas for data manipulation and prefer vectorization for calculations."
+  - "Use Enums for event types, node types, and other constants to ensure consistency."
+  - "Design nodes to be rule-based, reusable, and swappable as per the project plan."
+  - "Support integration with external systems like RabbitMQ, APIs, and databases."
+  - "Ensure all models and data structures are validated using Pydantic dataclasses."
+  - "Maintain a modular, event-driven framework using Rasa for intent detection."
+
+# Additional settings or rules can be added here 

@@ -1,4 +1,4 @@
-from sqlmodel import Session, create_engine, select
+from sqlmodel import SQLModel, Session, create_engine, select
 
 from app import crud
 from app.core.config import settings
@@ -7,6 +7,8 @@ from app.core.database.supabase import SupabaseDatabase
 
 db = SupabaseDatabase()
 engine = db.get_engine()
+
+#SQLModel.metadata.create_all(engine)
 
 def get_session() -> Session:
     return db.get_session()
