@@ -1,8 +1,8 @@
 """Baseline migration
 
-Revision ID: 8894adf9fa1a
-Revises: 
-Create Date: 2024-12-28 19:07:20.216859
+Revision ID: 020b83db5cb4
+Revises: drop_enums_001
+Create Date: 2024-12-29 13:14:35.943381
 
 """
 from alembic import op
@@ -11,8 +11,8 @@ import sqlmodel.sql.sqltypes
 
 
 # revision identifiers, used by Alembic.
-revision = '8894adf9fa1a'
-down_revision = None
+revision = '020b83db5cb4'
+down_revision = 'drop_enums_001'
 branch_labels = None
 depends_on = None
 
